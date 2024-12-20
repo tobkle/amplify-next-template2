@@ -6,7 +6,9 @@ import type { Schema } from "@/amplify/data/resource";
 import "./../app/app.css";
 import { Amplify } from "aws-amplify";
 import outputs from "@/amplify_outputs.json";
+import { useAuthenticator } from "@aws-amplify/ui-react";
 import "@aws-amplify/ui-react/styles.css";
+import Auth from "@/components/auth";
 
 Amplify.configure(outputs);
 
@@ -21,6 +23,11 @@ export default function App() {
     });
   }
 
+    
+  function deleteTodo(id: string) {
+    client.models.Todo.delete({ id })
+  }
+
   useEffect(() => {
     listTodos();
   }, []);
@@ -32,14 +39,21 @@ export default function App() {
   }
 
   return (
-    <main>
+    
+    <Auth>
+      {({ signOut }) => (
+        <main>
       <h1>My todos</h1>
       <button onClick={createTodo}>+ new</button>
       <ul>
         {todos.map((todo) => (
-          <li key={todo.id}>{todo.content}</li>
+          <li 
+            key={todo.id}
+            onClick={() => deleteTodo(todo.id)}
+          >{todo.content}</li>
         ))}
       </ul>
+
       <div>
         🥳 App successfully hosted. Try creating a new todo.
         <br />
@@ -47,6 +61,10 @@ export default function App() {
           Review next steps of this tutorial.
         </a>
       </div>
-    </main>
+
+      <button onClick={signOut}>Sign out</button>
+      </main>
+    )}
+      </Auth>
   );
 }
